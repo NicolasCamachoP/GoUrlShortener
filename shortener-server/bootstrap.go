@@ -5,13 +5,6 @@ import (
 	"os"
 )
 
-const (
-	DEFAULT_PORT        = 3333
-	ID_QUERY_STRING_KEY = "id"
-	TARGET_URL_KEY      = "target_url"
-	MAIN_PATH           = "/url"
-)
-
 func main() {
 	log.Println("[INFO] - Injecting dependencies")
 	server, err := Inject()
