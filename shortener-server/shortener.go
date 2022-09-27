@@ -4,18 +4,14 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
-	"time"
 )
 
-type ShortenerOptions struct {
-	UrlExpirationHours int
-}
+type ShortenerOptions struct{}
 type Shortener struct {
-	dbHandler DbHandlerInterface
-	opts      *ShortenerOptions
+	dbHandler IRepository
 }
 
-func NewShortener(shortenerOpts *ShortenerOptions, db DbHandlerInterface) (*Shortener, error) {
+func NewShortener(shortenerOpts *ShortenerOptions, db IRepository) (*Shortener, error) {
 
 	return nil, nil
 }
@@ -23,8 +19,7 @@ func NewShortener(shortenerOpts *ShortenerOptions, db DbHandlerInterface) (*Shor
 func (s *Shortener) SaveUrl(targetUrl string) (string, error) {
 	id := genId(targetUrl)
 	if !s.dbHandler.Exists(id) {
-		err := s.dbHandler.SetItem(id, targetUrl, time.Duration(s.opts.UrlExpirationHours)*time.Hour)
-		if err != nil {
+		if err := s.dbHandler.SetItem(id, targetUrl); err != nil {
 			return "", fmt.Errorf("error while saving url: %w", err)
 		}
 	}
@@ -41,8 +36,8 @@ func (s *Shortener) GetUrl(id string) (string, error) {
 	urlFound, err := s.dbHandler.GetItem(id)
 	if err != nil {
 		return "", fmt.Errorf("error while retrieving url: %w", err)
-	} else if urlFound == "" {
+	} else if urlFound == nil {
 		return "", nil
 	}
-	return fmt.Sprintf("%v", urlFound), nil
+	return fmt.Sprint(urlFound), nil
 }

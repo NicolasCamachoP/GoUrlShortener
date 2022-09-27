@@ -39,8 +39,7 @@ func NewServer(serverOpts *ServerOptions, shortener ShortenerInterface) *Server 
 }
 
 func (s *Server) Start() error {
-	err := http.ListenAndServe(fmt.Sprintf(":%v", s.options.PortNumber), s.httpHandler)
-	if err != nil {
+	if err := http.ListenAndServe(fmt.Sprintf(":%v", s.options.PortNumber), s.httpHandler); err != nil {
 		return fmt.Errorf("error while doing ListenAndServe operation: %w", err)
 	}
 	return nil
