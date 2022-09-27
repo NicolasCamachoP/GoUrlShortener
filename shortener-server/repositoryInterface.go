@@ -1,9 +1,7 @@
 package main
 
-import "time"
-
 //Interface of a DB handler to facilitate changing DB and mocking
-type DbHandlerInterface interface {
+type IRepository interface {
 	//Exists: check if an element existis in DB
 	//Input: Item's uid
 	//Output: true if the element does exist
@@ -15,5 +13,8 @@ type DbHandlerInterface interface {
 	//SetItem: save an item to the database
 	//Intput:the uid of the item, the item to be saved
 	//Output: an error if any
-	SetItem(id string, value interface{}, expiration time.Duration) error
+	SetItem(id string, value interface{}) error
+	//ShutDown: disconects from database
+	//Output: an error if any
+	ShutDown() error
 }
