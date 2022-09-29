@@ -11,9 +11,15 @@ type Shortener struct {
 	dbHandler IRepository
 }
 
-func NewShortener(shortenerOpts *ShortenerOptions, db IRepository) (*Shortener, error) {
+func NewShortener(shortenerOpts *ShortenerOptions, db IRepository) *Shortener {
+	return &Shortener{db}
+}
 
-	return nil, nil
+func (s *Shortener) ShutDown() error {
+	if s.dbHandler != nil {
+		return s.dbHandler.ShutDown()
+	}
+	return fmt.Errorf("unable to shutdown dbHandler. nil value")
 }
 
 func (s *Shortener) SaveUrl(targetUrl string) (string, error) {
