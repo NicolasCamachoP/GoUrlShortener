@@ -9,4 +9,7 @@ type ShortenerInterface interface {
 	//Input: URL to save
 	//Output: created ID and error if any
 	SaveUrl(targetUrl string) (string, error)
+	//ShutDown: close all possible connections
+	//Output: error if any
+	ShutDown() error
 }

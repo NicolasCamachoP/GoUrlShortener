@@ -28,17 +28,9 @@ func Inject() (*Server, error) {
 }
 
 func CreateService(serverOpts *ServerOptions, shortenerOpts *ShortenerOptions, dbOpts *DbOptions) (*Server, error) {
-	mongoSvc, err := NewMongoService(&DbOptions{})
+	mongoSvc, err := NewMongoService(dbOpts)
 	if err != nil {
 		return nil, fmt.Errorf("error creating repository handler: %w", err)
 	}
-	shortener, err := NewShortener(shortenerOpts, mongoSvc)
-	if err != nil {
-		return nil, fmt.Errorf("error creating shortener: %w", err)
-	}
-	server := NewServer(serverOpts, shortener)
-	if err != nil {
-		return nil, fmt.Errorf("error starting server: %w", err)
-	}
-	return server, nil
+	return NewServer(serverOpts, NewShortener(shortenerOpts, mongoSvc)), nil
 }

@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/go-http-utils/headers"
 	"github.com/gorilla/mux"
@@ -16,6 +15,9 @@ import (
 const (
 	KEY_ID = "KEY"
 )
+
+//Point to the handler to be able to shut down the service completely
+var handler *Handler
 
 type Server struct {
 	options     *ServerOptions
@@ -34,15 +36,25 @@ type Handler struct {
 
 func NewServer(serverOpts *ServerOptions, shortener ShortenerInterface) *Server {
 	router := mux.NewRouter()
-	router.Handle(fmt.Sprintf("%v/{%v}", serverOpts.BasePath, KEY_ID), &Handler{shortener, serverOpts.BasePath})
+	handler = &Handler{shortener, serverOpts.BasePath}
+	router.Handle(fmt.Sprintf("%v/", serverOpts.BasePath), handler)
+	router.Handle(fmt.Sprintf("%v/{%v}", serverOpts.BasePath, KEY_ID), handler)
 	return &Server{serverOpts, router}
 }
 
 func (s *Server) Start() error {
+	log.Printf("[INFO] [Start] - Listening and serving for port %v and basepath %s", s.options.PortNumber, s.options.BasePath)
 	if err := http.ListenAndServe(fmt.Sprintf(":%v", s.options.PortNumber), s.httpHandler); err != nil {
 		return fmt.Errorf("error while doing ListenAndServe operation: %w", err)
 	}
 	return nil
+}
+
+func (s *Server) ShutDown() error {
+	if handler != nil {
+		return handler.shortener.ShutDown()
+	}
+	return fmt.Errorf("handler is nil")
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -88,8 +100,8 @@ func (h *Handler) postUrl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	request := &UrlRequest{}
-	err = json.Unmarshal(body, request)
-	if err != nil {
+
+	if err = json.Unmarshal(body, request); err != nil {
 		log.Println("[ERROR] - Error unmarshalling body: ", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -107,7 +119,7 @@ func (h *Handler) postUrl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := &UrlResponse{genShortenedUrl(id, h.basePath)}
+	response := &UrlResponse{fmt.Sprintf("%s%s%s", r.Host, r.URL.Path, id)}
 	rawResponse, err := json.Marshal(response)
 	if err != nil {
 		log.Println("[ERROR] - Error marshalling response: %w", err)
@@ -118,11 +130,4 @@ func (h *Handler) postUrl(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(headers.ContentType, "application/json")
 	w.WriteHeader(http.StatusOK)
 	io.WriteString(w, string(rawResponse))
-}
-func genShortenedUrl(id string, basePath string) string {
-	var b strings.Builder
-	b.WriteString(basePath)
-	b.WriteString("/")
-	b.WriteString(id)
-	return b.String()
 }
