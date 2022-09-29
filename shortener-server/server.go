@@ -88,8 +88,8 @@ func (h *Handler) postUrl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	request := &UrlRequest{}
-	err = json.Unmarshal(body, request)
-	if err != nil {
+
+	if err = json.Unmarshal(body, request); err != nil {
 		log.Println("[ERROR] - Error unmarshalling body: ", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return

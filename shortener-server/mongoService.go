@@ -15,9 +15,9 @@ const (
 	URL_UID = "_id"
 )
 
-type UrlDocument struct {
-	Url string `bson:"Url"`
-	Id  string `bson:"_id"`
+type Document struct {
+	Value interface{} `bson:"value"`
+	Id    string      `bson:"_id"`
 }
 
 type DbOptions struct {
@@ -69,26 +69,26 @@ func (ms *MongoService) ShutDown() error {
 }
 
 func (ms *MongoService) GetItem(key string) (interface{}, error) {
-	var urlDoc UrlDocument
-	err := ms.collHandler.FindOne(
+	var doc Document
+
+	if err := ms.collHandler.FindOne(
 		ms.context,
-		bson.D{primitive.E{Key: URL_UID, Value: key}}).Decode(&urlDoc)
-	if err != nil {
+		bson.D{primitive.E{Key: URL_UID, Value: key}}).Decode(&doc); err != nil {
 		if err == mongo.ErrNoDocuments {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("error while finding item: %w", err)
 	}
-	return urlDoc.Url, nil
+	return doc.Value, nil
 }
 
 func (ms *MongoService) SetItem(key string, value interface{}) error {
-	newUrl := UrlDocument{
-		Id:  key,
-		Url: fmt.Sprintf("%v", value),
+	newDoc := Document{
+		Id:    key,
+		Value: value,
 	}
 	filter := bson.D{{Key: URL_UID, Value: key}}
-	update := bson.M{"$set": newUrl}
+	update := bson.M{"$set": newDoc}
 	options := options.Update().SetUpsert(true)
 	if _, err := ms.collHandler.UpdateOne(ms.context, filter, update, options); err != nil {
 		return fmt.Errorf("error while setting item: %w", err)

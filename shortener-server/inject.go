@@ -36,9 +36,5 @@ func CreateService(serverOpts *ServerOptions, shortenerOpts *ShortenerOptions, d
 	if err != nil {
 		return nil, fmt.Errorf("error creating shortener: %w", err)
 	}
-	server := NewServer(serverOpts, shortener)
-	if err != nil {
-		return nil, fmt.Errorf("error starting server: %w", err)
-	}
-	return server, nil
+	return NewServer(serverOpts, shortener), nil
 }

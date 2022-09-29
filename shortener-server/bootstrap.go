@@ -13,8 +13,7 @@ func main() {
 		os.Exit(1)
 	}
 	log.Println("[INFO] - Starting server")
-	err = server.Start()
-	if err != nil {
+	if err = server.Start(); err != nil {
 		log.Println("[ERROR] - Error while starting server: ", err)
 		os.Exit(1)
 	}
