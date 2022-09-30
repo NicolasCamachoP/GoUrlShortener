@@ -14,10 +14,49 @@ spec:
     spec:
       containers:
       - name: shortener-container
-        image: dockerbogo/shortener
-        resources:
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
+        image: nicolascamachop/shortener:v1
         ports:
         - containerPort: 3333
+        env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: shortenercm
+              key: db_host
+              optional: false
+        - name: DB_PORT_NUMBER
+          valueFrom:
+            configMapKeyRef:
+              name: shortenercm
+              key: db_port
+              optional: false
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: dbsecrets
+              key: username
+              optional: false
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: dbsecrets
+              key: password
+              optional: false
+        - name: DB_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: shortenercm
+              key: db_database
+              optional: false
+        - name: DB_COLLECTION
+          valueFrom:
+            configMapKeyRef:
+              name: shortenercm
+              key: db_collection
+              optional: false
+        - name: SERVER_BASEPATH
+          valueFrom:
+            configMapKeyRef:
+              name: shortenercm
+              key: server_basepath
+              optional: false
