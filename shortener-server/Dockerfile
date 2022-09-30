@@ -1,17 +1,14 @@
 # syntax=docker/dockerfile:1
-
 FROM golang:1.18-alpine
 
 ADD . /app
-
 WORKDIR /app
 
-RUN go mod download
-
-RUN go build main.go
-
-RUN ls -a
+ENV SERVER_PORT_NUMBER=3333
 
 EXPOSE 3333
 
-CMD ["/app/main"]
+RUN go mod download
+RUN go build
+
+CMD ["/app/shortener-server"]
