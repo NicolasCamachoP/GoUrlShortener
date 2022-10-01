@@ -1,3 +1,4 @@
 secrets_test.go
 env_init.sh
-shortener-server
+!shortener-shortener/
+shortener-shortener

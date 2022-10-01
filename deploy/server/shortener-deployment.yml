@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: shortener-container
-        image: nicolascamachop/shortener:v1
+        image: nicolascamachop/shortener:v2
         ports:
         - containerPort: 3333
         env:
