@@ -99,6 +99,7 @@ func (h *Handler) postUrl(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	defer r.Body.Close()
 	request := &UrlRequest{}
 
 	if err = json.Unmarshal(body, request); err != nil {
